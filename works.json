@@ -33,5 +33,26 @@
     "medium": "Cotton + Resist Dye",
     "year": "2026",
     "description": "Directional pattern derived from warp alignment."
+  },
+  {
+    "title": "Wrap6",
+    "image": "./images/wrap6.jpg",
+    "medium": "Textile Preview",
+    "year": "2026",
+    "description": "Preview image for Wrap6."
+  },
+  {
+    "title": "Wrap7",
+    "image": "./images/wrap7.jpg",
+    "medium": "Textile Preview",
+    "year": "2026",
+    "description": "Preview image for Wrap7."
+  },
+  {
+    "title": "Wrap8",
+    "image": "./images/wrap8.jpg",
+    "medium": "Textile Preview",
+    "year": "2026",
+    "description": "Preview image for Wrap8."
   }
 ]
