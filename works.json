@@ -33,26 +33,5 @@
     "medium": "Cotton + Resist Dye",
     "year": "2026",
     "description": "Directional pattern derived from warp alignment."
-  },
-  {
-    "title": "Abstract wrap Texture 06",
-    "image": "./images/wrap6.jpg",
-    "medium": "Handloom Fabric",
-    "year": "2026",
-    "description": "Textural crop highlighting yarn variation."
-  },
-  {
-    "title": "Repeat Segment 07",
-    "image": "./images/wrap7.jpg",
-    "medium": "Natural Dye Textile",
-    "year": "2026",
-    "description": "Segment of repeating structure. Full layout withheld."
-  },
-  {
-    "title": "Deep Indigo Study 08",
-    "image": "./images/wrap8.jpg",
-    "medium": "Silk Blend",
-    "year": "2026",
-    "description": "High contrast indigo tones with blurred transitions."
   }
 ]

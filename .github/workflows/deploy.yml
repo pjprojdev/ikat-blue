@@ -1,4 +1,4 @@
-name: Deploy textile portfolio
+name: Sync and publish textile portfolio
 
 on:
   push:
@@ -6,23 +6,30 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
 concurrency:
   group: "pages-portfolio"
   cancel-in-progress: true
 
 jobs:
-  build:
+  validate-and-publish:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+    env:
+      PAGES_TOKEN: ${{ secrets.PAGES_ADMIN_TOKEN }}
     steps:
       - name: Check out repo
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fail if Pages admin token is missing
+        run: |
+          if [ -z "${PAGES_TOKEN}" ]; then
+            echo "Missing required secret: PAGES_ADMIN_TOKEN"
+            echo "Create a fine-grained personal access token with repository Administration: write, Pages: write, and Contents: write."
+            exit 1
+          fi
 
       - name: Sync works.json from available images
         run: |
@@ -55,10 +62,12 @@ jobs:
                   existing_by_image[image] = item
 
           synced = []
-          for index, image_file in enumerate(image_files, start=1):
+          for image_file in image_files:
               image_key = f"./images/{image_file.name}"
               item = dict(existing_by_image.get(image_key, {}))
-              item["title"] = str(item.get("title", image_file.stem.replace("-", " ").replace("_", " ").title())).strip()
+              item["title"] = str(
+                  item.get("title", image_file.stem.replace("-", " ").replace("_", " ").title())
+              ).strip()
               item["image"] = image_key
               item["medium"] = str(item.get("medium", "Textile Preview")).strip() or "Textile Preview"
               item["year"] = str(item.get("year", "2026")).strip() or "2026"
@@ -74,21 +83,47 @@ jobs:
           print(f"Synced {works_path} with {len(synced)} image(s)")
           PY
 
-      - name: Ensure required files exist
+      - name: Validate site files
         run: |
           test -f index.html
           test -f styles.css
           test -f app.js
           test -f cover.jpg
+          test -f works.json
 
-      - name: Configure GitHub Pages
-        uses: actions/configure-pages@v5
+      - name: Commit synced works.json
+        run: |
+          if git diff --quiet -- works.json; then
+            echo "No works.json changes to commit."
+            exit 0
+          fi
 
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: .
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin "https://x-access-token:${PAGES_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git add works.json
+          git commit -m "Sync works.json from images"
+          git push origin HEAD:main
 
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Enable GitHub Pages from main branch
+        env:
+          REPO: ${{ github.repository }}
+        run: |
+          curl -L \
+            -X PUT \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${PAGES_TOKEN}" \
+            -H "X-GitHub-Api-Version: 2026-03-10" \
+            "https://api.github.com/repos/${REPO}/pages" \
+            -d '{"build_type":"legacy","source":{"branch":"main","path":"/"}}'
+
+      - name: Request GitHub Pages build
+        env:
+          REPO: ${{ github.repository }}
+        run: |
+          curl -L \
+            -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${PAGES_TOKEN}" \
+            -H "X-GitHub-Api-Version: 2026-03-10" \
+            "https://api.github.com/repos/${REPO}/pages/builds"
