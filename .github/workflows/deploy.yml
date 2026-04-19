@@ -15,58 +15,71 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  validate:
+  build:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Check out repo
         uses: actions/checkout@v4
 
-      - name: Validate works.json and image files
+      - name: Sync works.json from available images
         run: |
           python - <<'PY'
           import json
           from pathlib import Path
 
-          path = Path("works.json")
-          if not path.exists():
-              raise SystemExit("works.json not found")
+          works_path = Path("works.json")
+          images_dir = Path("images")
+          image_files = sorted(
+              p for p in images_dir.iterdir()
+              if p.is_file() and p.suffix.lower() in {".jpg", ".jpeg", ".png", ".webp", ".gif"}
+          )
 
-          data = json.loads(path.read_text(encoding="utf-8"))
+          if not image_files:
+              raise SystemExit("No preview images found in /images")
 
-          if not isinstance(data, list):
-              raise SystemExit("works.json must contain a list")
+          existing = []
+          if works_path.exists():
+              existing = json.loads(works_path.read_text(encoding="utf-8"))
+              if not isinstance(existing, list):
+                  raise SystemExit("works.json must contain a list")
 
-          required = ["title", "image", "medium", "year"]
-
-          for i, item in enumerate(data, start=1):
+          existing_by_image = {}
+          for i, item in enumerate(existing, start=1):
               if not isinstance(item, dict):
                   raise SystemExit(f"Entry {i} is not an object")
+              image = str(item.get("image", "")).strip()
+              if image:
+                  existing_by_image[image] = item
 
-              for key in required:
-                  if key not in item or not str(item[key]).strip():
-                      raise SystemExit(f"Entry {i} is missing required field: {key}")
+          synced = []
+          for index, image_file in enumerate(image_files, start=1):
+              image_key = f"./images/{image_file.name}"
+              item = dict(existing_by_image.get(image_key, {}))
+              item["title"] = str(item.get("title", image_file.stem.replace("-", " ").replace("_", " ").title())).strip()
+              item["image"] = image_key
+              item["medium"] = str(item.get("medium", "Textile Preview")).strip() or "Textile Preview"
+              item["year"] = str(item.get("year", "2026")).strip() or "2026"
+              item["description"] = str(
+                  item.get("description", f"Preview image for {item['title']}.")
+              ).strip()
+              synced.append(item)
 
-              image_path = item["image"].replace("./", "")
-              if not Path(image_path).exists():
-                  raise SystemExit(f"Missing image file for entry {i}: {item['image']}")
-
-          print("works.json and image paths are valid")
+          works_path.write_text(
+              json.dumps(synced, indent=2, ensure_ascii=False) + "\n",
+              encoding="utf-8",
+          )
+          print(f"Synced {works_path} with {len(synced)} image(s)")
           PY
+
       - name: Ensure required files exist
         run: |
           test -f index.html
           test -f styles.css
           test -f app.js
           test -f cover.jpg
-
-  build-and-deploy:
-    needs: validate
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-    steps:
-      - name: Check out repo
-        uses: actions/checkout@v4
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
