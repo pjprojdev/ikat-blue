@@ -1,23 +1,58 @@
 [
   {
-    "title": "Warp Study 01",
-    "image": "./images/sample1-preview.jpg",
-    "medium": "Cotton, natural dye",
+    "title": "Indigo Warp Study 01",
+    "image": "./images/wrap1.jpg",
+    "medium": "Cotton + Natural Indigo",
     "year": "2026",
-    "description": "Close crop from an ikat development sample. Full repeat not shown."
+    "description": "Close crop of warp resist pattern. Full repeat intentionally not shown."
   },
   {
-    "title": "Motif Fragment 02",
-    "image": "./images/sample2-preview.jpg",
-    "medium": "Hand block and pigment",
+    "title": "Blurred wrap Edge 02",
+    "image": "./images/wrap2.jpg",
+    "medium": "Handwoven Cotton",
     "year": "2026",
-    "description": "Preview crop only, with scale and production details withheld."
+    "description": "Soft edge transitions characteristic of wrap dyeing."
   },
   {
-    "title": "Repeat Study 03",
-    "image": "./images/sample3-preview.jpg",
-    "medium": "Silk blend, woven structure",
+    "title": "Geometric wrap Grid 03",
+    "image": "./images/wrap3.jpg",
+    "medium": "Cotton Weave",
     "year": "2026",
-    "description": "Low-resolution surface preview for portfolio display."
+    "description": "Fragment of a geometric repeat. Scaled and cropped for preview."
+  },
+  {
+    "title": "Motif Fragment 04",
+    "image": "./images/wrap4.jpg",
+    "medium": "Indigo Dyed Yarn",
+    "year": "2026",
+    "description": "Motif section showing dye resist irregularities."
+  },
+  {
+    "title": "Linear Pattern Study 05",
+    "image": "./images/wrap5.jpg",
+    "medium": "Cotton + Resist Dye",
+    "year": "2026",
+    "description": "Directional pattern derived from warp alignment."
+  },
+  {
+    "title": "Abstract wrap Texture 06",
+    "image": "./images/wrap6.jpg",
+    "medium": "Handloom Fabric",
+    "year": "2026",
+    "description": "Textural crop highlighting yarn variation."
+  },
+  {
+    "title": "Repeat Segment 07",
+    "image": "./images/wrap7.jpg",
+    "medium": "Natural Dye Textile",
+    "year": "2026",
+    "description": "Segment of repeating structure. Full layout withheld."
+  },
+  {
+    "title": "Deep Indigo Study 08",
+    "image": "./images/wrap8.jpg",
+    "medium": "Silk Blend",
+    "year": "2026",
+    "description": "High contrast indigo tones with blurred transitions."
   }
 ]
