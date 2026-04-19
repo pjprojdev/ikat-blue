@@ -21,7 +21,7 @@ jobs:
       - name: Check out repo
         uses: actions/checkout@v4
 
-      - name: Validate works.json
+      - name: Validate works.json and image files
         run: |
           python - <<'PY'
           import json
@@ -41,13 +41,17 @@ jobs:
           for i, item in enumerate(data, start=1):
               if not isinstance(item, dict):
                   raise SystemExit(f"Entry {i} is not an object")
+
               for key in required:
                   if key not in item or not str(item[key]).strip():
                       raise SystemExit(f"Entry {i} is missing required field: {key}")
 
-          print("works.json is valid")
-          PY
+              image_path = item["image"].replace("./", "")
+              if not Path(image_path).exists():
+                  raise SystemExit(f"Missing image file for entry {i}: {item['image']}")
 
+          print("works.json and image paths are valid")
+          PY
       - name: Ensure required files exist
         run: |
           test -f index.html
